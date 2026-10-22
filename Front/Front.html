@@ -1,1 +1,1798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pronto Socorro</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6f6;
+            color: #16262b;
+        }
+
+        header {
+            background: #16262b;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        header button {
+            background: none;
+            border: none;
+            color: #bbb;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        header button.ativo {
+            color: white;
+            border-bottom: 3px solid #5cc8d0;
+        }
+
+        .botao-sair {
+            margin-left: auto;
+            color: white;
+        }
+
+        main {
+            max-width: 1150px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #d5dee0;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #5b6c71;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 3px;
+            border: 1px solid #aebbbe;
+            border-radius: 5px;
+            font: inherit;
+        }
+
+        .botoes {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #0e6b73;
+            color: white;
+            border: 1px solid #0e6b73;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .btn-secundario {
+            background: white;
+            color: #0e6b73;
+        }
+
+        .btn-perigo {
+            background: white;
+            color: #b3261e;
+            border-color: #b3261e;
+        }
+
+        .erro {
+            color: #b3261e;
+            font-size: 12px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .fila button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .fila button:hover {
+            background: #e6f2f3;
+        }
+
+        .medicamento {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+            gap: 7px;
+            align-items: end;
+            margin-bottom: 10px;
+        }
+
+        .login {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .login h1,
+        .login > p {
+            text-align: center;
+        }
+
+        .login-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .status {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .status div {
+            background: #f3f6f6;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .status small {
+            display: block;
+            color: #5b6c71;
+            margin-bottom: 5px;
+        }
+
+        #mensagem {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #16262b;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 5px;
+        }
+
+        dialog {
+            width: 500px;
+            max-width: 90%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        [hidden] { display: none !important; }
+
+        .triagem-grid {
+            display: grid;
+            grid-template-columns: minmax(250px, 0.85fr) minmax(320px, 1.4fr);
+            gap: 20px;
+        }
+        .paciente-triagem {
+            width: 100%;
+            text-align: left;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #fff;
+            border: 1px solid #ccd6d8;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .paciente-triagem:hover, .paciente-triagem.selecionado {
+            background: #e6f2f3;
+            border-color: #0e6b73;
+        }
+        .campos-vitais {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 12px;
+        }
+        .aviso-triagem {
+            padding: 10px 12px;
+            border-left: 4px solid #0e6b73;
+            background: #edf7f7;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        @media(max-width: 850px) {
+            .grid, .login-grid, .triagem-grid { grid-template-columns: 1fr; }
+            .status { grid-template-columns: 1fr 1fr; }
+            .medicamento, .campos-vitais { grid-template-columns: 1fr; }
+        }
+
+        /* PAINEL MÉDICO INTEGRADO */
+        .painel-medico-resumo {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(110px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .resumo-urgencia {
+            background: #fff;
+            border: 1px solid #d5dee0;
+            border-top: 4px solid #0e6b73;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .resumo-urgencia strong { display:block; font-size:25px; }
+        .resumo-urgencia small { color:#5b6c71; }
+        .resumo-critica { border-top-color:#c62828; }
+        .resumo-alta { border-top-color:#ef6c00; }
+        .resumo-media { border-top-color:#f9a825; }
+        .resumo-baixa { border-top-color:#2e7d32; }
+        .resumo-pendente { border-top-color:#0e6b73; }
+        .painel-medico-filtros {
+            display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;
+        }
+        .painel-medico-filtros input,
+        .painel-medico-filtros select { flex:1; min-width:180px; }
+        .urgencia-tag {
+            display:inline-block; padding:4px 9px; border-radius:12px;
+            font-size:12px; font-weight:bold; white-space:nowrap;
+        }
+        .urgencia-critica { background:#fde8e8; color:#c62828; }
+        .urgencia-alta { background:#fff0e0; color:#b45309; }
+        .urgencia-media { background:#fff8d6; color:#8a6500; }
+        .urgencia-baixa { background:#e8f5e9; color:#2e7d32; }
+        .urgencia-pendente { background:#e0f2f1; color:#00695c; }
+        @media(max-width:850px) {
+            .painel-medico-resumo { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<section id="telaLogin" class="login">
+    <h1>Pronto Socorro</h1>
+    <p>Escolha como deseja acessar o sistema.</p>
+
+    <div class="login-grid">
+        <div class="card">
+            <h2>Funcionários</h2>
+
+            <label>
+                Perfil
+                <select id="perfilFuncionario">
+                    <option value="secretaria">Secretária</option>
+                    <option value="enfermeira">Enfermeira</option>
+                    <option value="medico">Médico</option>
+                </select>
+            </label>
+
+            <label>
+                Senha
+                <input id="senhaFuncionario" type="password">
+            </label>
+
+            <div class="botoes">
+                <button class="btn" onclick="entrarComoFuncionario()">Entrar</button>
+            </div>
+
+            <p><small>Senha para testes: 1234</small></p>
+        </div>
+
+        <div class="card">
+            <h2>Paciente</h2>
+
+            <p>
+                Digite seu CPF para solicitar ou acompanhar
+                um atendimento.
+            </p>
+
+            <label>
+                CPF
+                <input id="cpfLoginPaciente" maxlength="14">
+            </label>
+
+            <div class="botoes">
+                <button class="btn" onclick="entrarComoPaciente()">Acessar</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div id="sistemaFuncionarios" hidden>
+
+    <header>
+        <h1>Pronto Socorro</h1>
+
+        <button id="botaoRecepcao" class="ativo" onclick="mostrarTela('recepcao')">
+            Recepção
+        </button>
+
+        <button id="botaoTriagem" onclick="mostrarTela('triagem')" hidden>
+            Triagem
+        </button>
+
+        <button id="botaoMedico" onclick="mostrarTela('medico')" hidden>
+            Médico
+        </button>
+
+        <span id="nomePerfil"></span>
+
+        <button class="botao-sair" onclick="sair()">Sair</button>
+    </header>
+
+
+    <main>
+
+        <section id="telaRecepcao" class="grid">
+
+            <div id="formularioRecepcao" class="card">
+                <h2 id="tituloFormulario">Novo atendimento</h2>
+
+                <form id="formCadastroRecepcao" onsubmit="salvarAtendimento(event)">
+                    <input type="hidden" id="idAtendimento">
+
+                    <label>
+                        Nome completo *
+                        <input id="nomePaciente">
+                        <span id="erroNome" class="erro"></span>
+                    </label>
+
+                    <label>
+                        CPF *
+                        <input id="cpfPaciente" maxlength="14">
+                        <span id="erroCpf" class="erro"></span>
+                    </label>
+
+                    <label>
+                        RG *
+                        <input id="rgPaciente">
+                    </label>
+
+                    <label>
+                        Data de nascimento *
+                        <input id="nascimentoPaciente" type="date">
+                    </label>
+
+                    <label>
+                        Telefone
+                        <input id="telefonePaciente">
+                    </label>
+
+                    <label>
+                        Nome da mãe *
+                        <input id="maePaciente">
+                    </label>
+
+                    <label>
+                        Nome do pai
+                        <input id="paiPaciente">
+                    </label>
+
+                    <label>
+                        Endereço *
+                        <input id="enderecoPaciente">
+                    </label>
+
+                    <label>
+                        Sintomas
+                        <textarea id="sintomasPaciente" rows="3"></textarea>
+                    </label>
+
+                    <div class="botoes">
+                        <button class="btn">Registrar atendimento</button>
+
+                        <button
+                            type="button"
+                            id="cancelarEdicao"
+                            class="btn btn-secundario"
+                            onclick="limparFormulario()"
+                            hidden
+                        >
+                            Cancelar edição
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="card">
+                <h2>Atendimentos</h2>
+
+                <div class="filtros">
+                    <input
+                        id="pesquisa"
+                        placeholder="Nome, CPF ou atendimento"
+                        oninput="listarAtendimentos()"
+                    >
+
+                    <select id="filtroSituacao" onchange="listarAtendimentos()">
+                        <option value="">Todas as situações</option>
+                        <option value="aguardando_triagem">Aguardando triagem</option>
+                        <option value="aguardando_medico">Aguardando médico</option>
+                        <option value="confirmado">Alta confirmada</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <div style="overflow-x:auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nº</th>
+                                <th>Paciente</th>
+                                <th>CPF</th>
+                                <th>Urgência</th>
+                                <th>Situação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="listaAtendimentos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section id="telaTriagem" class="triagem-grid" hidden>
+            <div class="card">
+                <h2>Fila de triagem</h2>
+                <p>Selecione um paciente aguardando avaliação da enfermagem.</p>
+                <div id="filaTriagem"></div>
+            </div>
+
+            <div class="card">
+                <h2>Avaliação de triagem</h2>
+                <div id="triagemVazia">
+                    Selecione um paciente na fila para iniciar a triagem.
+                </div>
+                <form id="formTriagem" onsubmit="salvarTriagem(event)" hidden>
+                    <input type="hidden" id="idPacienteTriagem">
+                    <div id="resumoPacienteTriagem"></div>
+                    <div class="aviso-triagem">
+                        Esta tela registra informações para apoio à equipe. A classificação final deve ser feita por profissional habilitado, conforme o protocolo da unidade. Em caso de emergência, acione imediatamente a equipe responsável.
+                    </div>
+
+                    <h3>Sinais vitais (se disponíveis)</h3>
+                    <div class="campos-vitais">
+                        <label>Pressão arterial
+                            <input id="triagemPressao" placeholder="Ex.: 120/80 mmHg">
+                        </label>
+                        <label>Frequência cardíaca (bpm)
+                            <input id="triagemPulso" type="number" min="0" max="300" placeholder="Ex.: 80">
+                        </label>
+                        <label>Frequência respiratória (irpm)
+                            <input id="triagemRespiracao" type="number" min="0" max="100" placeholder="Ex.: 16">
+                        </label>
+                        <label>Temperatura (°C)
+                            <input id="triagemTemperatura" type="number" min="25" max="45" step="0.1" placeholder="Ex.: 36.5">
+                        </label>
+                        <label>Saturação de oxigênio (%)
+                            <input id="triagemSaturacao" type="number" min="0" max="100" placeholder="Ex.: 98">
+                        </label>
+                        <label>Escala de dor (0 a 10)
+                            <input id="triagemDor" type="number" min="0" max="10" placeholder="Ex.: 3">
+                        </label>
+                    </div>
+
+                    <label>Classificação de urgência *
+                        <select id="triagemUrgencia" required>
+                            <option value="">Selecione a classificação</option>
+                            <option value="Baixa">Baixa</option>
+                            <option value="Média">Média</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Crítica">Crítica</option>
+                        </select>
+                    </label>
+                    <label>Observações da triagem
+                        <textarea id="triagemObservacoes" rows="4" placeholder="Relato, sinais observados e outras informações relevantes..."></textarea>
+                    </label>
+                    <div class="botoes">
+                        <button class="btn" type="submit">Salvar triagem e encaminhar</button>
+                        <button class="btn btn-secundario" type="button" onclick="limparSelecaoTriagem()">Limpar seleção</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="telaMedico" hidden>
+            <div class="painel-medico-resumo">
+                <div class="resumo-urgencia resumo-critica">
+                    <strong id="medicoCntCritica">0</strong><small>Crítica</small>
+                </div>
+                <div class="resumo-urgencia resumo-alta">
+                    <strong id="medicoCntAlta">0</strong><small>Alta</small>
+                </div>
+                <div class="resumo-urgencia resumo-media">
+                    <strong id="medicoCntMedia">0</strong><small>Média</small>
+                </div>
+                <div class="resumo-urgencia resumo-baixa">
+                    <strong id="medicoCntBaixa">0</strong><small>Baixa</small>
+                </div>
+                <div class="resumo-urgencia resumo-pendente">
+                    <strong id="medicoCntPendente">0</strong><small>Aguardando triagem</small>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom:20px">
+                <h2>Painel de pacientes</h2>
+                <p><small>Resumo dos atendimentos ativos, integrado à recepção e à triagem.</small></p>
+                <div class="painel-medico-filtros">
+                    <input id="medicoPesquisa" placeholder="Buscar por nome, CPF ou atendimento" oninput="mostrarFilaMedico()">
+                    <select id="medicoFiltroUrgencia" onchange="mostrarFilaMedico()">
+                        <option value="">Todas as urgências</option>
+                        <option value="Crítica">Crítica</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Média">Média</option>
+                        <option value="Baixa">Baixa</option>
+                        <option value="Não definida">Não definida</option>
+                    </select>
+                </div>
+                <div style="overflow-x:auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Atendimento</th><th>Paciente</th><th>Urgência</th><th>Situação</th><th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="painelTabelaMedico"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <section class="grid">
+                <div class="card">
+                    <h2>Aguardando atendimento</h2>
+                    <div id="filaMedico" class="fila"></div>
+                </div>
+                <div id="atendimentoMedico" class="card">
+                    Selecione um paciente.
+                </div>
+            </section>
+        </section>
+
+    </main>
+</div>
+
+
+<div id="areaPaciente" hidden>
+
+    <header>
+        <h1>Área do Paciente</h1>
+
+        <button class="botao-sair" onclick="sair()">
+            Sair
+        </button>
+    </header>
+
+    <main>
+
+        <div id="cadastroPaciente" class="card">
+            <h2>Solicitar atendimento</h2>
+
+            <p>
+                Informe seus sintomas.
+                A urgência será definida pela enfermagem.
+            </p>
+
+            <form onsubmit="criarAtendimentoPaciente(event)">
+                <label>
+                    Nome completo *
+                    <input id="nomeNovoPaciente">
+                </label>
+
+                <label>
+                    Data de nascimento *
+                    <input id="nascimentoNovoPaciente" type="date">
+                </label>
+
+                <label>
+                    Telefone
+                    <input id="telefoneNovoPaciente">
+                </label>
+
+                <label>
+                    Sintomas *
+                    <textarea
+                        id="sintomasNovoPaciente"
+                        rows="5"
+                        placeholder="Descreva o que está sentindo..."
+                    ></textarea>
+                </label>
+
+                <div class="botoes">
+                    <button class="btn">Solicitar atendimento</button>
+                </div>
+            </form>
+        </div>
+
+
+        <div id="acompanhamentoPaciente" class="card" hidden>
+            <h2>Meu atendimento</h2>
+            <div id="dadosAtendimentoPaciente"></div>
+        </div>
+
+    </main>
+</div>
+
+
+<dialog id="janelaAlta">
+    <h2>Confirmar alta médica?</h2>
+
+    <div id="resumoAlta"></div>
+
+    <div class="botoes">
+        <button class="btn btn-secundario" onclick="janelaAlta.close()">
+            Voltar
+        </button>
+
+        <button class="btn" onclick="confirmarAlta()">
+            Confirmar alta
+        </button>
+    </div>
+</dialog>
+
+<div id="mensagem" hidden></div>
+
+
+<script>
+
+const nomeBanco = "pronto_socorro";
+
+let atendimentos =
+    JSON.parse(localStorage.getItem(nomeBanco)) || [];
+
+let perfilAtual = "";
+let cpfPacienteLogado = "";
+
+let atendimentoSelecionado = null;
+let prescricaoEmAndamento = null;
+
+
+/* BANCO TEMPORÁRIO */
+
+function salvarNoBanco() {
+    localStorage.setItem(
+        nomeBanco,
+        JSON.stringify(atendimentos)
+    );
+}
+
+function procurarAtendimento(id) {
+    return atendimentos.find(
+        atendimento => atendimento.id === id
+    );
+}
+
+function gerarNumeroAtendimento() {
+    let ultimoNumero = 0;
+
+    atendimentos.forEach(function(atendimento) {
+        let numero = Number(
+            atendimento.numero.replace("AT", "")
+        );
+
+        if (numero > ultimoNumero) {
+            ultimoNumero = numero;
+        }
+    });
+
+    return "AT" +
+        String(ultimoNumero + 1).padStart(4, "0");
+}
+
+
+/* FUNÇÕES AUXILIARES */
+
+function retirarPontuacaoCpf(cpf) {
+    return cpf.replace(/\D/g, "");
+}
+
+function formatarCpf(cpf) {
+    cpf = retirarPontuacaoCpf(cpf).slice(0, 11);
+
+    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+    return cpf;
+}
+
+function mostrarMensagem(texto) {
+    let mensagem = document.getElementById("mensagem");
+
+    mensagem.textContent = texto;
+    mensagem.hidden = false;
+
+    setTimeout(function() {
+        mensagem.hidden = true;
+    }, 2500);
+}
+
+function nomeDaSituacao(situacao) {
+    if (situacao === "aguardando_triagem") {
+        return "Aguardando triagem";
+    }
+
+    if (situacao === "aguardando_medico") {
+        return "Aguardando médico";
+    }
+
+    if (situacao === "confirmado") {
+        return "Alta confirmada";
+    }
+
+    if (situacao === "cancelado") {
+        return "Cancelado";
+    }
+
+    return "";
+}
+
+
+/* LOGIN */
+
+function entrarComoFuncionario() {
+    let perfil =
+        document.getElementById("perfilFuncionario").value;
+
+    let senha =
+        document.getElementById("senhaFuncionario").value;
+
+    if (senha !== "1234") {
+        mostrarMensagem("Senha incorreta.");
+        return;
+    }
+
+    perfilAtual = perfil;
+
+    document.getElementById("telaLogin").hidden = true;
+    document.getElementById("sistemaFuncionarios").hidden = false;
+
+    document.getElementById("formularioRecepcao").hidden =
+        perfilAtual !== "secretaria";
+
+    document.getElementById("botaoMedico").hidden =
+        perfilAtual !== "medico";
+    document.getElementById("botaoTriagem").hidden =
+        perfilAtual !== "enfermeira";
+    document.getElementById("botaoRecepcao").hidden =
+        perfilAtual === "enfermeira" || perfilAtual === "medico";
+
+    let nomePerfil =
+        perfilAtual.charAt(0).toUpperCase() +
+        perfilAtual.slice(1);
+
+    document.getElementById("nomePerfil").textContent =
+        nomePerfil;
+
+    if (perfilAtual === "enfermeira") {
+        mostrarTela("triagem");
+    } else if (perfilAtual === "medico") {
+        mostrarTela("medico");
+    } else {
+        mostrarTela("recepcao");
+    }
+}
+
+function entrarComoPaciente() {
+    let cpf = retirarPontuacaoCpf(
+        document.getElementById("cpfLoginPaciente").value
+    );
+
+    if (cpf.length !== 11) {
+        mostrarMensagem("Digite um CPF válido.");
+        return;
+    }
+
+    perfilAtual = "paciente";
+    cpfPacienteLogado = cpf;
+
+    document.getElementById("telaLogin").hidden = true;
+    document.getElementById("areaPaciente").hidden = false;
+
+    mostrarAreaPaciente();
+}
+
+function sair() {
+    perfilAtual = "";
+    cpfPacienteLogado = "";
+
+    document.getElementById("sistemaFuncionarios").hidden = true;
+    document.getElementById("areaPaciente").hidden = true;
+    document.getElementById("telaLogin").hidden = false;
+    document.getElementById("botaoRecepcao").hidden = false;
+    document.getElementById("botaoTriagem").hidden = true;
+    document.getElementById("botaoMedico").hidden = true;
+}
+
+
+/* NAVEGAÇÃO */
+
+function mostrarTela(tela) {
+    if (tela === "medico" && perfilAtual !== "medico") return;
+    if (tela === "triagem" && perfilAtual !== "enfermeira") return;
+    if (tela === "recepcao" && perfilAtual !== "secretaria") return;
+
+    document.getElementById("telaRecepcao").hidden = tela !== "recepcao";
+    document.getElementById("telaTriagem").hidden = tela !== "triagem";
+    document.getElementById("telaMedico").hidden = tela !== "medico";
+
+    document.getElementById("botaoRecepcao").classList.toggle("ativo", tela === "recepcao");
+    document.getElementById("botaoTriagem").classList.toggle("ativo", tela === "triagem");
+    document.getElementById("botaoMedico").classList.toggle("ativo", tela === "medico");
+
+    if (tela === "medico") {
+        mostrarFilaMedico();
+    } else if (tela === "triagem") {
+        mostrarFilaTriagem();
+    } else {
+        listarAtendimentos();
+    }
+}
+
+
+/* RECEPÇÃO */
+
+function salvarAtendimento(evento) {
+    evento.preventDefault();
+
+    let nome =
+        document.getElementById("nomePaciente").value.trim();
+
+    let cpf =
+        retirarPontuacaoCpf(
+            document.getElementById("cpfPaciente").value
+        );
+
+    let id =
+        document.getElementById("idAtendimento").value;
+
+    document.getElementById("erroNome").textContent = "";
+    document.getElementById("erroCpf").textContent = "";
+
+    if (nome.split(" ").length < 2) {
+        document.getElementById("erroNome").textContent =
+            "Digite o nome completo.";
+        return;
+    }
+
+    if (cpf.length !== 11) {
+        document.getElementById("erroCpf").textContent =
+            "CPF inválido.";
+        return;
+    }
+
+    let paciente = {
+        nome: nome,
+        cpf: cpf,
+        rg: document.getElementById("rgPaciente").value,
+        nascimento: document.getElementById("nascimentoPaciente").value,
+        telefone: document.getElementById("telefonePaciente").value,
+        mae: document.getElementById("maePaciente").value,
+        pai: document.getElementById("paiPaciente").value,
+        endereco: document.getElementById("enderecoPaciente").value
+    };
+
+    let sintomas =
+        document.getElementById("sintomasPaciente").value;
+
+    if (id) {
+        let atendimento =
+            procurarAtendimento(Number(id));
+
+        atendimento.paciente = paciente;
+        atendimento.sintomas = sintomas;
+
+        mostrarMensagem("Atendimento atualizado.");
+    } else {
+        let novoAtendimento = {
+            id: Date.now(),
+            numero: gerarNumeroAtendimento(),
+            paciente: paciente,
+            sintomas: sintomas,
+            urgencia: "Não definida",
+            situacao: "aguardando_triagem",
+            criado: new Date().toISOString()
+        };
+
+        atendimentos.push(novoAtendimento);
+
+        mostrarMensagem("Atendimento registrado.");
+    }
+
+    salvarNoBanco();
+    limparFormulario();
+    listarAtendimentos();
+}
+
+function limparFormulario() {
+    document.getElementById("formCadastroRecepcao").reset();
+
+    document.getElementById("idAtendimento").value = "";
+
+    document.getElementById("tituloFormulario").textContent =
+        "Novo atendimento";
+
+    document.getElementById("cancelarEdicao").hidden = true;
+}
+
+function editarAtendimento(id) {
+    let atendimento = procurarAtendimento(id);
+    let paciente = atendimento.paciente;
+
+    document.getElementById("nomePaciente").value =
+        paciente.nome || "";
+
+    document.getElementById("cpfPaciente").value =
+        formatarCpf(paciente.cpf);
+
+    document.getElementById("rgPaciente").value =
+        paciente.rg || "";
+
+    document.getElementById("nascimentoPaciente").value =
+        paciente.nascimento || "";
+
+    document.getElementById("telefonePaciente").value =
+        paciente.telefone || "";
+
+    document.getElementById("maePaciente").value =
+        paciente.mae || "";
+
+    document.getElementById("paiPaciente").value =
+        paciente.pai || "";
+
+    document.getElementById("enderecoPaciente").value =
+        paciente.endereco || "";
+
+    document.getElementById("sintomasPaciente").value =
+        atendimento.sintomas || "";
+
+    document.getElementById("idAtendimento").value = id;
+
+    document.getElementById("tituloFormulario").textContent =
+        "Alterar atendimento " + atendimento.numero;
+
+    document.getElementById("cancelarEdicao").hidden = false;
+}
+
+function cancelarAtendimento(id) {
+    let atendimento = procurarAtendimento(id);
+
+    let confirmar = confirm(
+        "Deseja cancelar o atendimento " +
+        atendimento.numero +
+        "?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    atendimento.situacao = "cancelado";
+
+    salvarNoBanco();
+    listarAtendimentos();
+
+    mostrarMensagem("Atendimento cancelado.");
+}
+
+
+
+/* TELA DE TRIAGEM */
+function mostrarFilaTriagem() {
+    const fila = document.getElementById("filaTriagem");
+    const pendentes = atendimentos.filter(a => a.situacao === "aguardando_triagem");
+    fila.innerHTML = "";
+
+    if (!pendentes.length) {
+        fila.textContent = "Nenhum paciente aguardando triagem.";
+        limparSelecaoTriagem();
+        return;
+    }
+
+    pendentes.forEach(function(a) {
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "paciente-triagem";
+        botao.innerHTML = `<strong>${a.numero} — ${escaparHTML(a.paciente.nome)}</strong>
+            <br><small>Entrada: ${new Date(a.criado).toLocaleString("pt-BR")}</small>
+            <br><span>${escaparHTML(a.sintomas || "Sem sintomas informados")}</span>`;
+        botao.onclick = () => selecionarPacienteTriagem(a.id);
+        fila.appendChild(botao);
+    });
+}
+
+function escaparHTML(valor) {
+    const mapa = {"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"};
+    return String(valor ?? "").replace(/[&<>"']/g, c => mapa[c]);
+}
+
+function selecionarPacienteTriagem(id) {
+    const a = procurarAtendimento(id);
+    if (!a || a.situacao !== "aguardando_triagem") {
+        mostrarMensagem("Este atendimento não está aguardando triagem.");
+        mostrarFilaTriagem();
+        return;
+    }
+
+    document.getElementById("idPacienteTriagem").value = String(id);
+    document.getElementById("triagemVazia").hidden = true;
+    document.getElementById("formTriagem").hidden = false;
+    document.getElementById("resumoPacienteTriagem").innerHTML = `
+        <h3>${escaparHTML(a.numero)} — ${escaparHTML(a.paciente.nome)}</h3>
+        <p><b>Data de nascimento:</b> ${escaparHTML(a.paciente.nascimento || "Não informada")}</p>
+        <p><b>Telefone:</b> ${escaparHTML(a.paciente.telefone || "Não informado")}</p>
+        <p><b>Sintomas relatados:</b> ${escaparHTML(a.sintomas || "Não informados")}</p>`;
+
+    const t = a.triagem || {};
+    document.getElementById("triagemPressao").value = t.pressao || "";
+    document.getElementById("triagemPulso").value = t.pulso || "";
+    document.getElementById("triagemRespiracao").value = t.respiracao || "";
+    document.getElementById("triagemTemperatura").value = t.temperatura || "";
+    document.getElementById("triagemSaturacao").value = t.saturacao || "";
+    document.getElementById("triagemDor").value = t.dor ?? "";
+    document.getElementById("triagemUrgencia").value = t.urgencia || "";
+    document.getElementById("triagemObservacoes").value = t.observacoes || "";
+}
+
+function salvarTriagem(evento) {
+    evento.preventDefault();
+    const id = Number(document.getElementById("idPacienteTriagem").value);
+    const a = procurarAtendimento(id);
+    const urgencia = document.getElementById("triagemUrgencia").value;
+
+    if (!a) {
+        mostrarMensagem("Atendimento não encontrado.");
+        return;
+    }
+    if (!urgencia) {
+        mostrarMensagem("Selecione a classificação de urgência.");
+        return;
+    }
+
+    a.triagem = {
+        pressao: document.getElementById("triagemPressao").value.trim(),
+        pulso: document.getElementById("triagemPulso").value,
+        respiracao: document.getElementById("triagemRespiracao").value,
+        temperatura: document.getElementById("triagemTemperatura").value,
+        saturacao: document.getElementById("triagemSaturacao").value,
+        dor: document.getElementById("triagemDor").value,
+        urgencia: urgencia,
+        observacoes: document.getElementById("triagemObservacoes").value.trim(),
+        profissional: perfilAtual,
+        realizadaEm: new Date().toISOString()
+    };
+    a.urgencia = urgencia;
+    a.situacao = "aguardando_medico";
+
+    salvarNoBanco();
+    mostrarMensagem("Triagem salva. Paciente encaminhado para a fila médica.");
+    document.getElementById("formTriagem").reset();
+    limparSelecaoTriagem();
+    mostrarFilaTriagem();
+}
+
+function limparSelecaoTriagem() {
+    const form = document.getElementById("formTriagem");
+    if (form) form.reset();
+    const id = document.getElementById("idPacienteTriagem");
+    if (id) id.value = "";
+    const vazio = document.getElementById("triagemVazia");
+    if (vazio) vazio.hidden = false;
+    if (form) form.hidden = true;
+    const resumo = document.getElementById("resumoPacienteTriagem");
+    if (resumo) resumo.innerHTML = "";
+}
+
+/* TRIAGEM — compatibilidade com a tabela da recepção */
+
+function realizarTriagem(id, urgencia) {
+    if (!urgencia) {
+        return;
+    }
+
+    let atendimento = procurarAtendimento(id);
+
+    atendimento.urgencia = urgencia;
+    atendimento.situacao = "aguardando_medico";
+
+    salvarNoBanco();
+    listarAtendimentos();
+    if (document.getElementById("telaTriagem") && !document.getElementById("telaTriagem").hidden) {
+        mostrarFilaTriagem();
+    }
+    mostrarMensagem("Triagem concluída.");
+}
+
+
+/* LISTA DE ATENDIMENTOS */
+
+function listarAtendimentos() {
+    let pesquisa =
+        document.getElementById("pesquisa").value.toLowerCase();
+
+    let filtro =
+        document.getElementById("filtroSituacao").value;
+
+    let tabela =
+        document.getElementById("listaAtendimentos");
+
+    tabela.innerHTML = "";
+
+    atendimentos.forEach(function(atendimento) {
+        let dadosPesquisa =
+            atendimento.numero +
+            atendimento.paciente.nome +
+            atendimento.paciente.cpf;
+
+        dadosPesquisa = dadosPesquisa.toLowerCase();
+
+        let apareceNaPesquisa =
+            dadosPesquisa.includes(pesquisa);
+
+        let apareceNoFiltro =
+            filtro === "" ||
+            atendimento.situacao === filtro;
+
+        if (!apareceNaPesquisa || !apareceNoFiltro) {
+            return;
+        }
+
+        let botoes = "";
+
+        if (
+            perfilAtual === "secretaria" &&
+            atendimento.situacao !== "confirmado" &&
+            atendimento.situacao !== "cancelado"
+        ) {
+            botoes = `
+                <button class="btn btn-secundario"
+                    onclick="editarAtendimento(${atendimento.id})">
+                    Alterar
+                </button>
+
+                <button class="btn btn-perigo"
+                    onclick="cancelarAtendimento(${atendimento.id})">
+                    Cancelar
+                </button>
+            `;
+        }
+
+        if (
+            perfilAtual === "enfermeira" &&
+            atendimento.situacao === "aguardando_triagem"
+        ) {
+            botoes = `
+                <select onchange="realizarTriagem(${atendimento.id}, this.value)">
+                    <option value="">Definir urgência</option>
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média">Média</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Crítica">Crítica</option>
+                </select>
+            `;
+        }
+
+        tabela.innerHTML += `
+            <tr>
+                <td>${atendimento.numero}</td>
+
+                <td>
+                    ${atendimento.paciente.nome}
+                    <br>
+                    <small>${atendimento.sintomas || ""}</small>
+                </td>
+
+                <td>${formatarCpf(atendimento.paciente.cpf)}</td>
+
+                <td>${atendimento.urgencia}</td>
+
+                <td>${nomeDaSituacao(atendimento.situacao)}</td>
+
+                <td>${botoes}</td>
+            </tr>
+        `;
+    });
+
+    if (tabela.innerHTML === "") {
+        tabela.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    Nenhum atendimento encontrado.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+/* PACIENTE */
+
+function criarAtendimentoPaciente(evento) {
+    evento.preventDefault();
+
+    let nome =
+        document.getElementById("nomeNovoPaciente").value.trim();
+
+    let nascimento =
+        document.getElementById("nascimentoNovoPaciente").value;
+
+    let telefone =
+        document.getElementById("telefoneNovoPaciente").value;
+
+    let sintomas =
+        document.getElementById("sintomasNovoPaciente").value.trim();
+
+    if (
+        nome === "" ||
+        nascimento === "" ||
+        sintomas === ""
+    ) {
+        mostrarMensagem("Preencha os campos obrigatórios.");
+        return;
+    }
+
+    let novoAtendimento = {
+        id: Date.now(),
+        numero: gerarNumeroAtendimento(),
+        criado: new Date().toISOString(),
+        situacao: "aguardando_triagem",
+        urgencia: "Não definida",
+        sintomas: sintomas,
+
+        paciente: {
+            nome: nome,
+            cpf: cpfPacienteLogado,
+            nascimento: nascimento,
+            telefone: telefone,
+            rg: "",
+            mae: "",
+            pai: "",
+            endereco: ""
+        }
+    };
+
+    atendimentos.push(novoAtendimento);
+
+    salvarNoBanco();
+
+    mostrarMensagem("Atendimento solicitado.");
+
+    mostrarAreaPaciente();
+}
+
+function procurarAtendimentoPaciente() {
+    let atendimentoEncontrado = null;
+
+    atendimentos.forEach(function(atendimento) {
+        if (
+            atendimento.paciente.cpf ===
+            cpfPacienteLogado
+        ) {
+            atendimentoEncontrado = atendimento;
+        }
+    });
+
+    return atendimentoEncontrado;
+}
+
+function mostrarAreaPaciente() {
+    let atendimento =
+        procurarAtendimentoPaciente();
+
+    let formulario =
+        document.getElementById("cadastroPaciente");
+
+    let acompanhamento =
+        document.getElementById("acompanhamentoPaciente");
+
+    if (!atendimento) {
+        formulario.hidden = false;
+        acompanhamento.hidden = true;
+        return;
+    }
+
+    if (
+        atendimento.situacao === "aguardando_triagem" ||
+        atendimento.situacao === "aguardando_medico"
+    ) {
+        formulario.hidden = true;
+    } else {
+        formulario.hidden = false;
+    }
+
+    acompanhamento.hidden = false;
+
+    mostrarSituacaoPaciente(atendimento);
+}
+
+function mostrarSituacaoPaciente(atendimento) {
+    let agora = new Date();
+    let inicio = new Date(atendimento.criado);
+
+    let minutos =
+        Math.floor((agora - inicio) / 60000);
+
+    let tempoEspera;
+
+    if (minutos < 60) {
+        tempoEspera =
+            minutos + " minutos";
+    } else {
+        let horas =
+            Math.floor(minutos / 60);
+
+        let minutosRestantes =
+            minutos % 60;
+
+        tempoEspera =
+            horas +
+            "h " +
+            minutosRestantes +
+            "min";
+    }
+
+    document.getElementById(
+        "dadosAtendimentoPaciente"
+    ).innerHTML = `
+        <p>
+            <b>Atendimento:</b>
+            ${atendimento.numero}
+        </p>
+
+        <p>
+            <b>Sintomas informados:</b>
+            ${atendimento.sintomas}
+        </p>
+
+        <div class="status">
+            <div>
+                <small>Data</small>
+
+                <strong>
+                    ${new Date(atendimento.criado)
+                        .toLocaleString("pt-BR")}
+                </strong>
+            </div>
+
+            <div>
+                <small>Tempo de espera</small>
+                <strong>${tempoEspera}</strong>
+            </div>
+
+            <div>
+                <small>Urgência</small>
+                <strong>${atendimento.urgencia}</strong>
+            </div>
+
+            <div>
+                <small>Situação</small>
+                <strong>
+                    ${nomeDaSituacao(atendimento.situacao)}
+                </strong>
+            </div>
+        </div>
+    `;
+}
+
+
+/* FILA DO MÉDICO */
+
+function mostrarFilaMedico() {
+    let fila = document.getElementById("filaMedico");
+    let tabela = document.getElementById("painelTabelaMedico");
+    let pesquisaEl = document.getElementById("medicoPesquisa");
+    let filtroEl = document.getElementById("medicoFiltroUrgencia");
+    if (!fila || !tabela) return;
+
+    const ativos = atendimentos.filter(a =>
+        a.situacao !== "confirmado" && a.situacao !== "cancelado"
+    );
+
+    const urgenciaNormalizada = a => {
+        if (a.situacao === "aguardando_triagem" || !a.urgencia || a.urgencia === "Não definida") {
+            return "Não definida";
+        }
+        return a.urgencia;
+    };
+
+    document.getElementById("medicoCntCritica").textContent =
+        ativos.filter(a => urgenciaNormalizada(a) === "Crítica").length;
+    document.getElementById("medicoCntAlta").textContent =
+        ativos.filter(a => urgenciaNormalizada(a) === "Alta").length;
+    document.getElementById("medicoCntMedia").textContent =
+        ativos.filter(a => urgenciaNormalizada(a) === "Média").length;
+    document.getElementById("medicoCntBaixa").textContent =
+        ativos.filter(a => urgenciaNormalizada(a) === "Baixa").length;
+    document.getElementById("medicoCntPendente").textContent =
+        ativos.filter(a => a.situacao === "aguardando_triagem").length;
+
+    const pesquisa = pesquisaEl ? pesquisaEl.value.trim().toLowerCase() : "";
+    const filtro = filtroEl ? filtroEl.value : "";
+    const visiveis = ativos.filter(a => {
+        const texto = `${a.numero} ${a.paciente.nome} ${a.paciente.cpf || ""}`.toLowerCase();
+        return texto.includes(pesquisa) && (!filtro || urgenciaNormalizada(a) === filtro);
+    });
+
+    tabela.innerHTML = "";
+    if (!visiveis.length) {
+        tabela.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:18px">Nenhum paciente encontrado.</td></tr>`;
+    } else {
+        visiveis.forEach(a => {
+            const urgencia = urgenciaNormalizada(a);
+            const classes = {
+                "Crítica": "urgencia-critica",
+                "Alta": "urgencia-alta",
+                "Média": "urgencia-media",
+                "Baixa": "urgencia-baixa",
+                "Não definida": "urgencia-pendente"
+            };
+            const acao = a.situacao === "aguardando_medico"
+                ? `<button class="btn" onclick="abrirAtendimentoMedico(${a.id})">Atender</button>`
+                : `<small>${a.situacao === "aguardando_triagem" ? "Aguardando triagem" : "Em andamento"}</small>`;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${escaparHTML(a.numero)}</td>
+                <td>${escaparHTML(a.paciente.nome)}</td>
+                <td><span class="urgencia-tag ${classes[urgencia] || "urgencia-pendente"}">${escaparHTML(urgencia)}</span></td>
+                <td>${escaparHTML(nomeDaSituacao(a.situacao))}</td>
+                <td>${acao}</td>`;
+            tabela.appendChild(tr);
+        });
+    }
+
+    fila.innerHTML = "";
+    const pendentesMedicos = ativos.filter(a => a.situacao === "aguardando_medico");
+    if (!pendentesMedicos.length) {
+        fila.textContent = "Nenhum paciente aguardando atendimento médico.";
+    } else {
+        pendentesMedicos.sort((a, b) => {
+            const peso = {"Crítica": 0, "Alta": 1, "Média": 2, "Baixa": 3, "Não definida": 4};
+            return (peso[a.urgencia] ?? 4) - (peso[b.urgencia] ?? 4);
+        });
+        pendentesMedicos.forEach(a => {
+            const botao = document.createElement("button");
+            botao.type = "button";
+            botao.innerHTML = `<b>${escaparHTML(a.numero)} — ${escaparHTML(a.paciente.nome)}</b><br><small>Urgência: ${escaparHTML(a.urgencia)}</small>`;
+            botao.onclick = () => abrirAtendimentoMedico(a.id);
+            fila.appendChild(botao);
+        });
+    }
+}
+
+/* ATENDIMENTO MÉDICO */
+
+function abrirAtendimentoMedico(id) {
+    atendimentoSelecionado = id;
+
+    let atendimento =
+        procurarAtendimento(id);
+
+    document.getElementById(
+        "atendimentoMedico"
+    ).innerHTML = `
+        <h2>
+            ${atendimento.numero}
+            -
+            ${atendimento.paciente.nome}
+        </h2>
+
+        <p>
+            <b>Urgência:</b>
+            ${atendimento.urgencia}
+        </p>
+
+        <p>
+            <b>Sintomas:</b>
+            ${atendimento.sintomas}
+        </p>
+
+        <label>
+            Hipótese diagnóstica *
+            <textarea id="diagnostico" rows="2"></textarea>
+        </label>
+
+        <h3>Prescrição</h3>
+
+        <div id="listaMedicamentos"></div>
+
+        <button
+            class="btn btn-secundario"
+            onclick="adicionarMedicamento()"
+        >
+            Adicionar medicamento
+        </button>
+
+        <label>
+            Orientações
+            <textarea id="orientacoes" rows="2"></textarea>
+        </label>
+
+        <label>
+            Tipo de alta
+
+            <select id="tipoAlta">
+                <option>Alta médica</option>
+                <option>Alta com retorno ambulatorial</option>
+                <option>Encaminhamento para internação</option>
+            </select>
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                id="confirmarRevisao"
+                style="width:auto"
+            >
+            Revisei a prescrição.
+        </label>
+
+        <div class="botoes">
+            <button
+                class="btn"
+                onclick="revisarAlta()"
+            >
+                Confirmar alta médica
+            </button>
+        </div>
+    `;
+
+    adicionarMedicamento();
+}
+
+
+/* MEDICAMENTOS */
+
+function adicionarMedicamento() {
+    let linha =
+        document.createElement("div");
+
+    linha.className =
+        "medicamento";
+
+    linha.innerHTML = `
+        <label>
+            Medicamento
+            <input data-campo="nome">
+        </label>
+
+        <label>
+            Dose
+            <input data-campo="dose">
+        </label>
+
+        <label>
+            Via
+            <select data-campo="via">
+                <option>Oral</option>
+                <option>Intravenosa</option>
+                <option>Intramuscular</option>
+            </select>
+        </label>
+
+        <label>
+            Frequência
+            <input data-campo="frequencia">
+        </label>
+
+        <label>
+            Duração
+            <input data-campo="duracao">
+        </label>
+
+        <button
+            type="button"
+            class="btn btn-perigo"
+            onclick="this.parentElement.remove()"
+        >
+            Remover
+        </button>
+    `;
+
+    document.getElementById(
+        "listaMedicamentos"
+    ).appendChild(linha);
+}
+
+
+/* ALTA MÉDICA */
+
+function revisarAlta() {
+    let diagnostico =
+        document.getElementById("diagnostico").value.trim();
+
+    if (diagnostico === "") {
+        mostrarMensagem("Informe o diagnóstico.");
+        return;
+    }
+
+    if (
+        !document.getElementById(
+            "confirmarRevisao"
+        ).checked
+    ) {
+        mostrarMensagem(
+            "Confirme que revisou a prescrição."
+        );
+
+        return;
+    }
+
+    let medicamentos = [];
+
+    document.querySelectorAll(
+        ".medicamento"
+    ).forEach(function(linha) {
+
+        let medicamento = {};
+
+        linha.querySelectorAll(
+            "[data-campo]"
+        ).forEach(function(campo) {
+
+            medicamento[
+                campo.dataset.campo
+            ] = campo.value;
+
+        });
+
+        if (medicamento.nome) {
+            medicamentos.push(medicamento);
+        }
+    });
+
+    prescricaoEmAndamento = {
+        diagnostico: diagnostico,
+        orientacoes:
+            document.getElementById("orientacoes").value,
+        tipoAlta:
+            document.getElementById("tipoAlta").value,
+        medicamentos: medicamentos
+    };
+
+    let atendimento =
+        procurarAtendimento(
+            atendimentoSelecionado
+        );
+
+    document.getElementById(
+        "resumoAlta"
+    ).innerHTML = `
+        <p>
+            <b>Paciente:</b>
+            ${atendimento.paciente.nome}
+        </p>
+
+        <p>
+            <b>Diagnóstico:</b>
+            ${diagnostico}
+        </p>
+    `;
+
+    document.getElementById(
+        "janelaAlta"
+    ).showModal();
+}
+
+function confirmarAlta() {
+    let atendimento =
+        procurarAtendimento(
+            atendimentoSelecionado
+        );
+
+    atendimento.prescricao = {
+        ...prescricaoEmAndamento,
+        confirmadoEm:
+            new Date().toISOString()
+    };
+
+    atendimento.situacao =
+        "confirmado";
+
+    salvarNoBanco();
+
+    document.getElementById(
+        "janelaAlta"
+    ).close();
+
+    atendimentoSelecionado = null;
+
+    mostrarFilaMedico();
+
+    mostrarMensagem(
+        "Alta confirmada."
+    );
+}
+
+
+/* FORMATAÇÃO AUTOMÁTICA DO CPF */
+
+document.getElementById(
+    "cpfPaciente"
+).addEventListener(
+    "input",
+    function() {
+        this.value =
+            formatarCpf(this.value);
+    }
+);
+
+document.getElementById(
+    "cpfLoginPaciente"
+).addEventListener(
+    "input",
+    function() {
+        this.value =
+            formatarCpf(this.value);
+    }
+);
+
+
+/* ATUALIZA O TEMPO DO PACIENTE */
+
+setInterval(
+    function() {
+        if (
+            perfilAtual === "paciente"
+        ) {
+            mostrarAreaPaciente();
+        }
+    },
+    30000
+);
+
+</script>
+
+</body>
+</html>
 
