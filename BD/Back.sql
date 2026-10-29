@@ -98,7 +98,8 @@ CREATE TABLE atendimentos (
 
     id_paciente INT NOT NULL,
 
-    id_recepcionista INT NOT NULL,
+    id_recepcionista INT NULL,
+    -- NULL quando o próprio paciente abre o atendimento pela área do paciente
 
     id_status INT NOT NULL,
 
@@ -107,6 +108,9 @@ CREATE TABLE atendimentos (
     data_hora_confirmacao DATETIME NULL,
 
     data_hora_saida DATETIME NULL,
+
+    sintomas TEXT,
+    -- sintomas relatados na abertura do atendimento (recepção ou paciente)
 
     observacoes VARCHAR(500),
 
@@ -135,6 +139,12 @@ CREATE TABLE triagens (
     temperatura DECIMAL(4,1),
 
     batimentos_cardiacos INT,
+
+    frequencia_respiratoria INT,
+
+    saturacao_oxigenio INT,
+
+    escala_dor TINYINT,
 
     queixa_principal TEXT,
 
@@ -189,6 +199,9 @@ CREATE TABLE atendimentos_medicos (
 
     conduta_medica TEXT,
 
+    tipo_alta VARCHAR(60),
+    -- Ex.: 'Alta médica', 'Alta com retorno ambulatorial', 'Encaminhamento para internação'
+
     data_hora_inicio DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     data_hora_fim DATETIME NULL,
@@ -220,6 +233,8 @@ CREATE TABLE prescricoes (
 
     frequencia VARCHAR(100),
 
+    duracao VARCHAR(50),
+
     observacoes VARCHAR(255),
 
     FOREIGN KEY (id_atendimento_medico)
@@ -228,3 +243,8 @@ CREATE TABLE prescricoes (
     FOREIGN KEY (id_medicamento)
         REFERENCES medicamentos(id_medicamento)
 );
+
+
+-- Os usuários de demonstração (recepção / enfermagem / médico, senha "1234")
+-- são criados pelo script backend/seed.js, que grava a senha já em hash
+-- (bcrypt). Rode "npm run seed" no backend depois de criar o banco.
